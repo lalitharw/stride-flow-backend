@@ -28,7 +28,7 @@ class ActivityService
 
     public function getById(int $activity_id)
     {
-        $activity = auth()->user()->activities()->findOrFail($activity_id);
+        $activity = auth()->user()->activities()->with("activityPoints")->findOrFail($activity_id);
         return [
             "activity" => $activity
         ];

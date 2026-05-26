@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\v1\AuthController;
 use App\Http\Controllers\Api\v1\UserController;
 use App\Http\Controllers\Api\v1\ActivityController;
+use App\Http\Controllers\Api\v1\ActivityPointController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,9 +35,13 @@ Route::prefix("v1")->group(function () {
         Route::prefix("activities")->controller(ActivityController::class)->group(function () {
             Route::post("/", "store");
             Route::get("/", "get");
-            Route::get("/{activity_id}", "getById");    
+            Route::get("/{activity_id}", "getById");
             Route::patch("mark-as-complete/{activity_id}", "markAsComplete");
             Route::delete("/{activity_id}", "delete");
+        });
+
+        Route::prefix("activity-points")->controller(ActivityPointController::class)->group(function () {
+            Route::post("/", "store");
         });
     });
 });

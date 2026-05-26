@@ -12,4 +12,9 @@ class Activity extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function activityPoints()
+    {
+        return $this->hasMany(ActivityPoint::class, "activity_id");
+    }
 }
