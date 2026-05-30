@@ -11,10 +11,14 @@ class ActivityService
     public function store(array $data)
     {
         $this->checkIfActivityIsIncomplete();
-        auth()->user()->activities()->create([
+        $activity = auth()->user()->activities()->create([
             "type" => "walk",
             "start_time" => now()
         ]);
+
+        return [
+            "activity" => $activity,
+        ];
     }
 
 

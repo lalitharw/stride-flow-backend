@@ -31,6 +31,7 @@ class AuthController extends Controller
 
     public function login(UserRegisterRequest $request)
     {
+        \Log::info($request->all());
         $result = $this->authService->login($request->email, $request->password);
         return $this->successResponse(
             data: $result,

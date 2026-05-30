@@ -19,8 +19,8 @@ class ActivityController extends Controller
 
     public function store(Request $request)
     {
-        $this->activityService->store($request->all());
-        return $this->successResponse(message: "Activity Created Successfully!");
+        $result = $this->activityService->store($request->all());
+        return $this->successResponse(data: $result, message: "Activity Created Successfully!");
     }
 
     public function get()

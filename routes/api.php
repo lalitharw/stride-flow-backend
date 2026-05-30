@@ -36,7 +36,7 @@ Route::prefix("v1")->group(function () {
             Route::post("/", "store");
             Route::get("/", "get");
             Route::get("/{activity_id}", "getById");
-            Route::patch("mark-as-complete/{activity_id}", "markAsComplete");
+            Route::patch("stop-activity/{activity_id}", "markAsComplete");
             Route::delete("/{activity_id}", "delete");
         });
 
