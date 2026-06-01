@@ -6,28 +6,31 @@ on:
       - main
 
 jobs:
-  build-and-deploy-to-ecr:
+  build-and-push-to-ecr:
     runs-on: ubuntu-latest
     env:
-      AWS_REGION: us-north-1
+      AWS_REGION: eu-north-1
       ECR_REPO: stride_flow_backend
 
     steps:
       - name: Checkout Code
-        uses: action/checkout@v4
+        uses: actions/checkout@v4
 
-      - name: AWS Configure
-        uses: aws-actions/configure-aws-credentials@v6
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: $AWS_REGION
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login, Build and Push to AWS ECR
-        id: $ECR_REPO
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push to ECR
         env:
-          REGISTRY: ${{ steps.$ECR_REPO.outputs.registry }}
-          REPOSITORY: $ECR_REPO
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ env.ECR_REPO }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -f dockerfile.prod -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
