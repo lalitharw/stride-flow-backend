@@ -1,0 +1,24 @@
+FROM composer:2.7 AS vendor_builder
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+
+RUN composer install --no-dev --no-interaction --no-plugins --no-scripts --prefer-dist --optimize-autoloader
+
+
+FROM php:8.3-fpm-alpine AS runtime
+
+WORKDIR /var/www/html
+
+RUN apk add --no-cache bash curl libpng-dev libzip-dev zip unzip oniguruma-dev \
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath gd opcache
+
+COPY . .
+COPY --from=vendor_builder /app/vendor ./vendor/
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+EXPOSE 9000
+
+CMD ["php-fpm","-F"]

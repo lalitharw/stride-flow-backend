@@ -1,0 +1,50 @@
+services:
+  caddy:
+    container_name: stride_flow_caddy
+    image: caddy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - .:/var/www/html
+    restart: always
+    depends_on:
+      - backend
+
+
+  backend:
+    container_name: stride_flow_backend
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    restart: always
+    env_file:
+     - .env
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    container_name: stride_flow_mysql
+    image: mysql:8.0
+    environment:
+       MYSQL_ROOT_PASSWORD: 1234
+       MYSQL_DATABASE: stride_flow
+    ports:
+     - 3302:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost","-u","root","-p1234"]
+      interval: 5s
+      retries: 10
+      timeout: 5s
+
+volumes:
+  mysql_data:
+  caddy_data:

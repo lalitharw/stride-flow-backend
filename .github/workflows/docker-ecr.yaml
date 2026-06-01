@@ -1,0 +1,34 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy-to-ecr:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-north-1
+      ECR_REPO: stride_flow_backend
+
+    steps:
+      - name: Checkout Code
+        uses: action/checkout@v4
+
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: $AWS_REGION
+
+      - name: Login, Build and Push to AWS ECR
+        id: $ECR_REPO
+        env:
+          REGISTRY: ${{ steps.$ECR_REPO.outputs.registry }}
+          REPOSITORY: $ECR_REPO
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -f dockerfile.prod -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
