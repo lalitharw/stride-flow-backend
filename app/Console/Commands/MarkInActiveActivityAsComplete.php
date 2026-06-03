@@ -27,6 +27,8 @@ class MarkInActiveActivityAsComplete extends Command
      */
     public function handle()
     {
-        $inactivity_activities = ActivityPoint::where("created_at", now())->get();
+        $inactivity_activities = Activity::whereNull("end_time")->where("start_time", "<=", now()->subMinutes(5))->update([
+            "end_time" => now()
+        ]);
     }
 }
