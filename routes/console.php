@@ -8,4 +8,4 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command("app:mark-in-active-activity-as-complete")->everyFiveMinutes();
+Schedule::command("app:mark-in-active-activity-as-complete")->hourly();
