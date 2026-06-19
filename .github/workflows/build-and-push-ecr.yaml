@@ -49,8 +49,8 @@ jobs:
   deploy-to-server:
     needs: build-image-push-to-ecr
     runs-on: ubuntu-latest
-    if: github.event_name == "workflow_dispatch" &&
-      github.event.inputs.environment == "build-and-deploy"
+    if: github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.environment == 'build-and-deploy'
     steps:
       - name: Execute Remote SSH Commands
         uses: appleboy/ssh-action@v1.0.3
