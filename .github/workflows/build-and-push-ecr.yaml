@@ -46,22 +46,22 @@ jobs:
           docker build -f dockerfile.prod -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-    deploy-to-server:
-      needs: build-image-push-to-ecr
-      runs-on: ubuntu-latest
-      if: github.event_name == "workflow_dispatch" &&
-        github.event.inputs.environment == "build-and-deploy"
-      steps:
-        - name: Execute Remote SSH Commands
-          uses: appleboy/ssh-action@v1.0.3
-          with:
-            host: ${{secrets.REMOTE_HOST}}
-            username: ${{secrets.REMOTE_USER}}
-            key: ${{secrets.PRIVATE_KEY}}
-            port: 22
-            script: |
-              ${{secrets.ECR_LOGIN}}
-              cd stride_flow
-              sed -i "s|amazonaws.com/stride_flow_backend:.*|amazonaws.com/stride_flow_backend:${{ github.sha }}|" docker-compose-prod.yaml
-              docker compose -f docker-compose-prod.yaml up -d
+  deploy-to-server:
+    needs: build-image-push-to-ecr
+    runs-on: ubuntu-latest
+    if: github.event_name == "workflow_dispatch" &&
+      github.event.inputs.environment == "build-and-deploy"
+    steps:
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{secrets.REMOTE_HOST}}
+          username: ${{secrets.REMOTE_USER}}
+          key: ${{secrets.PRIVATE_KEY}}
+          port: 22
+          script: |
+            ${{secrets.ECR_LOGIN}}
+            cd stride_flow
+            sed -i "s|amazonaws.com/stride_flow_backend:.*|amazonaws.com/stride_flow_backend:${{ github.sha }}|" docker-compose-prod.yaml
+            docker compose -f docker-compose-prod.yaml up -d
 
