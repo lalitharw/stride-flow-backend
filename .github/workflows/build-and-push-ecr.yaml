@@ -21,7 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: us-east-1
-      ECR_REPO: stride_flow_backend_ecr
+      ECR_BACKEND_REPO: stride_flow_backend_ecr
+      ECR_CADDY_REPO: stride_flow_caddy_ecr
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -37,13 +38,22 @@ jobs:
         id: login-ecr
         uses:  aws-actions/amazon-ecr-login@v2
 
-      - name: Build and Push to ECR
+      - name: Build and Push to Backend ECR
         env:
           REGISTRY: ${{steps.login-ecr.outputs.registry}}
-          REPOSITORY: ${{env.ECR_REPO}}
+          REPOSITORY: ${{env.ECR_BACKEND_REPO}}
           IMAGE_TAG: ${{github.sha}}
         run: |
           docker build -f dockerfile.prod -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+  
+      - name: Build and Push to Caddy ECR
+        env:
+          REGISTRY: ${{steps.login-ecr.outputs.registry}}
+          REPOSITORY: ${{env.ECR_CADDY_REPO}}
+          IMAGE_TAG: ${{github.sha}}
+        run: |
+          docker build -f dockerfile.caddy -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
   deploy-to-server:
