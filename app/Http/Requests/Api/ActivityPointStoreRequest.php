@@ -24,7 +24,8 @@ class ActivityPointStoreRequest extends FormRequest
     {
         return [
             "activity_id" => "required|exists:activities,id,user_id," . auth()->user()->id,
-            "co_ordinates" => "required"
+            "co_ordinates" => "required",
+            "sequence" => "required|integer"
         ];
     }
 }

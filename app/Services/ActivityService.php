@@ -4,9 +4,17 @@ namespace App\Services;
 
 use App\Exceptions\Api\CheckIfActivityIsInComplete;
 use App\Models\Activity;
+use App\Models\ActivityPoint;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class ActivityService
 {
+    protected ActivityPointService $activityPointService;
+    public function __construct(ActivityPointService $activityPointService)
+    {
+        $this->activityPointService = $activityPointService;
+    }
 
     public function store(array $data)
     {
@@ -33,6 +41,13 @@ class ActivityService
     public function getById(int $activity_id)
     {
         $activity = auth()->user()->activities()->with("activityPoints")->findOrFail($activity_id);
+        $activity->route = $activity->activityPoints
+            ->sortBy("order")
+            ->map(fn($point) => [
+                $point->latitude,
+                $point->longitude
+            ])->values();
+        unset($activity->activityPoints);
         return [
             "activity" => $activity
         ];
@@ -40,15 +55,19 @@ class ActivityService
 
     public function markAsComplete(int $activity_id)
     {
-        $activity = auth()->user()->activities()->findOrFail($activity_id);
-        if ($activity->end_time) {
-            return;
-        }
-        $activity->update([
-            "end_time" => now()
-        ]);
+        $key = "activity:{$activity_id}:points";
+        $raw = Redis::lrange($key, 0, -1);
+        DB::transaction(function () use ($activity_id, $raw) {
+            if (!empty($raw)) {
+                $allPoints = collect($raw)->map(fn($item) => json_decode($item, true))->sortBy("sequence")->flatMap(fn($b) => $b["co_ordinates"])->values();
+                $this->activityPointService->blukStore($allPoints, $activity_id);
+            }
+            auth()->user()->activities()->find($activity_id)->update([
+                "end_time" => now()
+            ]);
+        });
+        Redis::del($key);
     }
-
 
     private function checkIfActivityIsIncomplete()
     {

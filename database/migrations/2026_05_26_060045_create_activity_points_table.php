@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('activity_points', function (Blueprint $table) {
             $table->id();
             $table->foreignId("activity_id")->constrained()->cascadeOnDelete();
-            $table->json("co_ordinate_data");
+            $table->integer("order");
+            $table->string("latitude");
+            $table->string("longitude");
             $table->timestamps();
         });
     }
