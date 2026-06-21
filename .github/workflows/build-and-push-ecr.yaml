@@ -6,7 +6,7 @@ on:
       - main
 
   workflow_dispatch:
-    inputs:
+    inputs: 
       environment:
         description: "Select Deployment environment"
         required: true
