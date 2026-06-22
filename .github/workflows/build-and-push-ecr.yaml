@@ -5,6 +5,7 @@ on:
     branches:
       - main
 
+
 jobs:
   build-image-push-to-ecr:
     runs-on: ubuntu-latest
