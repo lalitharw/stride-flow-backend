@@ -34,8 +34,8 @@ jobs:
           REPOSITORY: ${{env.ECR_BACKEND_REPO}}
           IMAGE_TAG: ${{github.sha}}
         run: |
-          docker build -f dockerfile.prod -t $REGISTRY/$REPOSITORY:latest .
-          docker push $REGISTRY/$REPOSITORY:latest
+          docker build -f dockerfile.prod -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
   
       - name: Build and Push to Caddy ECR
         env:
@@ -43,7 +43,29 @@ jobs:
           REPOSITORY: ${{env.ECR_CADDY_REPO}}
           IMAGE_TAG: ${{github.sha}}
         run: |
-          docker build -f dockerfile.caddy -t $REGISTRY/$REPOSITORY:latest .
-          docker push $REGISTRY/$REPOSITORY:latest
+          docker build -f dockerfile.caddy -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: Update Image Tags in Secrets Manager
+        env:
+          SECRET_ID: strideflow
+          IMAGE_TAG: ${{github.sha}}
+        run: |
+          CURRENT_VALUE=$(aws secretsmanager get-secret-value \
+            --secret-id "$SECRET_ID"  \
+            --region eu-north-1 \
+            --query SecretString \
+            --output text
+            )
+
+          UPDATED_SECRET=$(echo "$CURRENT_VALUE" | jq \
+          --arg sha "$IMAGE_TAG" \
+          '.BACKEND_IMAGE_TAG = $sha |
+           .CADDY_IMAGE_TAG = $sha')
+
+          aws secretsmanager put-secret-value \
+            --secret-id "$SECRET_ID" \
+            --secret-string "$UPDATED_SECRET"
+
 
  
