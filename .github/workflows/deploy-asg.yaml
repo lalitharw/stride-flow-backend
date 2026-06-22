@@ -1,0 +1,35 @@
+name: Deploy to ASG
+
+on:
+  push:
+    branches:
+      - main
+
+workflow_dispatch:
+  inputs:
+    environment:
+      description: "Do you want to deploy?"
+      required: false
+      default: no-deploy
+      type: choice
+      options:
+        - no-deploy
+        - deploy
+
+jobs:
+  deploy-to-asg:
+    if: github.event == "workflow_dispatch" && github.event.inputs.environment == "deploy"
+    runs-on: ubuntu-latest
+    steps:
+      - name: configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-region: us-east-1
+
+      - name: Trigger ASG Instance Refresh
+        run: |
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name "stride-flow-asg" \
+            --preferences '{"MinHealthyPercentage":50, "InstanceWarmup":300}'
