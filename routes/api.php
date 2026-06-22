@@ -14,7 +14,7 @@ Route::prefix("v1")->group(function () {
     // testing api
     Route::get("test", function () {
         return response([
-            "message" => "Api Up and Running!",
+            "message" => "Api Up and Running Successfully!",
             "success" => true
         ], 200);
     });

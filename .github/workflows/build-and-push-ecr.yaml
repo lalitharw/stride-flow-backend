@@ -62,16 +62,9 @@ jobs:
     if: github.event_name == 'workflow_dispatch' &&
       github.event.inputs.environment == 'build-and-deploy'
     steps:
-      - name: Execute Remote SSH Commands
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{secrets.REMOTE_HOST}}
-          username: ${{secrets.REMOTE_USER}}
-          key: ${{secrets.PRIVATE_KEY}}
-          port: 22
-          script: |
-            ${{secrets.ECR_LOGIN}}
-            cd stride_flow
-            sed -i "s|amazonaws.com/stride_flow_backend:.*|amazonaws.com/stride_flow_backend:${{ github.sha }}|" docker-compose-prod.yaml
-            docker compose -f docker-compose-prod.yaml up -d
+      - name: Trigger ASG Instance Refresh
+        run: |
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name "stride-flow-asg"
+            --preferences '{"MinHealthlyPercentage":50, "InstanceWarmup":300}'
 
