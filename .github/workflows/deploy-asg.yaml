@@ -4,17 +4,17 @@ on:
   push:
     branches:
       - main
-      
+
   workflow_dispatch:
-  inputs:
-    environment:
-      description: "Do you want to deploy?"
-      required: false
-      default: no-deploy
-      type: choice
-      options:
-        - no-deploy
-        - deploy
+    inputs:
+      environment:
+        description: "Do you want to deploy?"
+        required: false
+        default: no-deploy
+        type: choice
+        options:
+          - no-deploy
+          - deploy
 
 
 
