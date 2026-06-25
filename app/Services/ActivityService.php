@@ -7,6 +7,7 @@ use App\Models\Activity;
 use App\Models\ActivityPoint;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\processActivityStats;
 
 class ActivityService
 {
@@ -44,10 +45,12 @@ class ActivityService
         $activity->route = $activity->activityPoints
             ->sortBy("order")
             ->map(fn($point) => [
-                $point->latitude,
-                $point->longitude
+               doubleval($point->latitude),
+               doubleval($point->longitude)
             ])->values();
         unset($activity->activityPoints);
+
+        Redis::set("activity_".$activity_id,$activity,'EX',86400);
         return [
             "activity" => $activity
         ];
@@ -61,11 +64,12 @@ class ActivityService
             if (!empty($raw)) {
                 $allPoints = collect($raw)->map(fn($item) => json_decode($item, true))->sortBy("sequence")->flatMap(fn($b) => $b["co_ordinates"])->values();
                 $this->activityPointService->blukStore($allPoints, $activity_id);
-            }
-            auth()->user()->activities()->find($activity_id)->update([
-                "end_time" => now()
-            ]);
-        });
+                }
+                auth()->user()->activities()->find($activity_id)->update([
+                    "end_time" => now()
+                    ]);
+                    });
+                    processActivityStats::dispatch($allPoints->toArray(), $activity_id);
         Redis::del($key);
     }
 

@@ -12,9 +12,12 @@ class processActivityStats implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    protected array $allPoints;
+    protected int $activity_id;
+    public function __construct(array $allPoints, int $activity_id)
     {
-        
+        $this->allPoints = $allPoints;
+        $this->activity_id = $activity_id;
     }
 
     /**
@@ -22,6 +25,9 @@ class processActivityStats implements ShouldQueue
      */
     public function handle(): void
     {
+        $activity = Activity::find($this->activity_id);
+
+        // $duration = Carbon::parse($activity->start_time)->diffInSeconds(Carbon::parse($activity->end_time));
         
     }
 }
