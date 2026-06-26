@@ -65,6 +65,7 @@ jobs:
 
           aws secretsmanager put-secret-value \
             --secret-id "$SECRET_ID" \
+            --region eu-north-1 \
             --secret-string "$UPDATED_SECRET"
 
 
