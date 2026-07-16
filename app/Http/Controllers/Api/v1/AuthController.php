@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\UserRegisterRequest;
+use App\Http\Requests\Api\UserLoginRequest;
 use App\Services\AuthService;
 use App\Trait\Api\ResponseTrait;
 use Illuminate\Http\Request;
@@ -22,17 +23,17 @@ class AuthController extends Controller
     public function register(UserRegisterRequest $request)
     {
         $data  = $request->validated();
-        $result = $this->authService->createUserAccount($data["email"], $data["password"]);
+        $result = $this->authService->createUserAccount($data["email"], $data["password"],$data['name']);
         return $this->successResponse(
             data: $result,
             message: "User Registered Successfully"
         );
     }
 
-    public function login(UserRegisterRequest $request)
+    public function login(UserLoginRequest $request)
     {
-        \Log::info($request->all());
-        $result = $this->authService->login($request->email, $request->password);
+        $data = $request->validated();
+        $result = $this->authService->login($data['email'], $data['password']);
         return $this->successResponse(
             data: $result,
             message: "User Logged In Successfully"

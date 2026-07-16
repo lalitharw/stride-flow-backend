@@ -35,12 +35,13 @@ class AuthService
     }
 
 
-    public function createUserAccount(string $email, string $password)
+    public function createUserAccount(string $email, string $password,string $name)
     {
         $this->userExistsByEmail($email);
         $user = new User();
         $user->email = $email;
         $user->password = Hash::make($password);
+        $user->name = $name;
         $user->save();
         $token = $this->createUserToken($user);
         return [
