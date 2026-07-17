@@ -30,6 +30,7 @@ Route::prefix("v1")->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::prefix("users")->controller(UserController::class)->group(function () {
             Route::get("/", "get");
+            Route::post("/","update");
         });
 
         Route::prefix("activities")->controller(ActivityController::class)->group(function () {
