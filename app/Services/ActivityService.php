@@ -59,19 +59,23 @@ class ActivityService
     public function markAsComplete(int $activity_id)
     {
         $key = "activity:{$activity_id}:points";
-        $raw = Redis::lrange($key, 0, -1);
-        $allPoints = collect();
-        DB::transaction(function () use ($activity_id, $raw, &$allPoints    ) {
-            if (!empty($raw)) {
-                $allPoints = collect($raw)->map(fn($item) => json_decode($item, true))->sortBy("sequence")->flatMap(fn($b) => $b["co_ordinates"])->values();
-                $this->activityPointService->blukStore($allPoints, $activity_id);
-                }
-                auth()->user()->activities()->find($activity_id)->update([
-                    "end_time" => now()
+        // $raw = Redis::lrange($key, 0, -1);
+        // $allPoints = collect();
+        // DB::transaction(function () use ($activity_id, $raw, &$allPoints) {
+        //     if (!empty($raw)) {
+        //         $allPoints = collect($raw)->map(fn($item) => json_decode($item, true))->sortBy("sequence")->flatMap(fn($b) => $b["co_ordinates"])->values();
+        //         $this->activityPointService->blukStore($allPoints, $activity_id);
+        //         }
+        //         auth()->user()->activities()->find($activity_id)->update([
+        //             "end_time" => now()
+        //             ]);
+        //             });
+        //             processActivityStats::dispatch($allPoints->toArray(), $activity_id)->afterCommit();
+        // Redis::del($key);
+           auth()->user()->activities()->find($activity_id)->update([
+                    "end_time" => now(),
+                    "status" => "completed"
                     ]);
-                    });
-                    processActivityStats::dispatch($allPoints->toArray(), $activity_id)->afterCommit();
-        Redis::del($key);
     }
 
     private function checkIfActivityIsIncomplete()
@@ -81,6 +85,17 @@ class ActivityService
             throw new CheckIfActivityIsInComplete();
         }
     }
+
+
+    public function checkIfActivityActive(int $activity_id){
+        $result = auth()->user()->activities()->whereId($activity_id)->first();
+        return [
+            "activity" => $result
+        ];
+    }
+
+
+
 
     public function delete(int $activity_id)
     {

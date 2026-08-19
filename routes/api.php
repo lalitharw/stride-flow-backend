@@ -39,6 +39,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/{activity_id}", "getById");
             Route::patch("stop-activity/{activity_id}", "markAsComplete");
             Route::delete("/{activity_id}", "delete");
+            Route::get("check-if-active/{activity_id}","getActiveActivityById");
         });
 
         Route::prefix("activity-points")->controller(ActivityPointController::class)->group(function () {
