@@ -7,6 +7,7 @@ use App\Trait\Api\ResponseTrait;
 use Illuminate\Http\Request;
 use App\Services\ActivityService;
 use App\Models\Activity;
+use App\Http\Requests\Api\ActivityStoreRequest;
 
 class ActivityController extends Controller
 {
@@ -17,9 +18,10 @@ class ActivityController extends Controller
         $this->activityService = $activityService;
     }
 
-    public function store(Request $request)
-    {
-        $result = $this->activityService->store($request->all());
+    public function store(ActivityStoreRequest $request)
+    {   
+        $data = $request->validated();
+        $result = $this->activityService->store($data);
         return $this->successResponse(data: $result, message: "Activity Created Successfully!");
     }
 

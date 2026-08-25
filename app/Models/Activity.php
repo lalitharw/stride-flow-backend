@@ -15,6 +15,7 @@ class Activity extends Model
         "formatted_end_time"
     ];
 
+
     public function user()
     {
         return $this->belongsTo(User::class);

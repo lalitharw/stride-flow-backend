@@ -8,6 +8,7 @@ use App\Models\ActivityPoint;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\processActivityStats;
+use Carbon\Carbon;
 
 class ActivityService
 {
@@ -19,10 +20,11 @@ class ActivityService
 
     public function store(array $data)
     {
-        $this->checkIfActivityIsIncomplete();
         $activity = auth()->user()->activities()->create([
             "type" => "walk",
-            "start_time" => now()
+            "start_time" => Carbon::parse($data["started_at"]),
+            "client_id" => $data['client_id'],
+            "stopped_at" => $data['stopped_at'] ? Carbon::parse($data['stopped_at']) : null
         ]);
 
         return [
