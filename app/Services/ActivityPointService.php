@@ -10,13 +10,22 @@ class ActivityPointService
 
     public function store(array $data)
     {
-        $key = "activity:{$data['activity_id']}:points";
-
-        Redis::rPush($key, json_encode([
-            "co_ordinates" => $data['co_ordinates'],
-            "sequence" => $data['sequence']
-        ]));
-
+        $points = [];
+        $activity_id = $data['activity_id'];
+        
+        foreach($data["points"] as $point){
+            if(ActivityPoint::where("client_id",$point['client_id'])->exists() || $activity_id == 6 || $activity_id == 7){
+                continue;
+            }
+            $points[] = [
+                "activity_id" => $activity_id,
+                "order" => 1,
+                "latitude" => $point['latitude'],
+                "longitude" => $point['longitude'],
+                "client_id" => $point['client_id']
+            ];
+        }
+        ActivityPoint::insert($points);
         return [
             "success" => true
         ];

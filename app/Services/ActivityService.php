@@ -24,7 +24,7 @@ class ActivityService
             "type" => "walk",
             "start_time" => Carbon::parse($data["started_at"]),
             "client_id" => $data['client_id'],
-            "stopped_at" => $data['stopped_at'] ? Carbon::parse($data['stopped_at']) : null
+            "end_time" => $data['stopped_at'] ? Carbon::parse($data['stopped_at']) : null
         ]);
 
         return [

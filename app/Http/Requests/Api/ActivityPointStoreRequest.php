@@ -20,12 +20,19 @@ class ActivityPointStoreRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+   public function rules(): array
     {
         return [
-            "activity_id" => "required|exists:activities,id,user_id," . auth()->user()->id,
-            "co_ordinates" => "required",
-            "sequence" => "required|integer"
+            "activity_id"        => "required|exists:activities,id,user_id," . auth()->user()->id,
+            "points"             => "required|array|min:1",
+            "points.*"           => "required|array",
+            "points.*.id"        => "required|integer",
+            "points.*.latitude"  => "required|numeric|between:-90,90",
+            "points.*.longitude" => "required|numeric|between:-180,180",
+            "points.*.client_id" => "required|uuid",
+            "points.*.accuracy"  => "required|numeric|min:0",
+            "points.*.altitude"  => "required|numeric",
+            "points.*.speed"     => "required|numeric|min:0",
         ];
-    }
+    }   
 }
