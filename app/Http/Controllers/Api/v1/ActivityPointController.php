@@ -18,10 +18,10 @@ class ActivityPointController extends Controller
         $this->activityPointService = $activityPointService;
     }
 
-    public function store(Request $request)
+    public function store(ActivityPointStoreRequest $request)
     {
-        
-        $this->activityPointService->store($request->all());
+        \Log::info($request->all());
+        $this->activityPointService->store($request->validated());
         return $this->successResponse(message: "Activity Point Saved Successfully");
     }
 }

@@ -14,10 +14,13 @@ return new class extends Migration
         Schema::create('activity_points', function (Blueprint $table) {
             $table->id();
             $table->foreignId("activity_id")->constrained()->cascadeOnDelete();
-            $table->integer("order");
+            $table->uuid("client_id")->unique();
             $table->string("latitude");
             $table->string("longitude");
+            $table->string("speed");
+            $table->string("altitude");
             $table->timestamps();
+            $table->index(["client_id"]);
         });
     }
 

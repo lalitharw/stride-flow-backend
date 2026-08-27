@@ -20,12 +20,15 @@ class ActivityService
 
     public function store(array $data)
     {
-        $activity = auth()->user()->activities()->create([
-            "type" => "walk",
-            "start_time" => Carbon::parse($data["started_at"]),
-            "client_id" => $data['client_id'],
-            "end_time" => $data['stopped_at'] ? Carbon::parse($data['stopped_at']) : null
-        ]);
+        
+        $activity = auth()->user()->activities()->firstOrCreate(
+            [
+            "client_id" => $data["client_id"]
+            ],
+            [
+                "start_time" => Carbon::parse($data["started_at"]),
+                "end_time" => $data['stopped_at'] ? Carbon::parse($data['stopped_at']) : null
+            ]);
 
         return [
             "activity" => $activity,
