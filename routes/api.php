@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix("v1")->group(function () {
 
-    // testing api
+    // testing api endpoint
     Route::get("test", function () {
         return response([
             "message" => "Api Up and Running Successfully!",
