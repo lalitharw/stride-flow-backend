@@ -27,7 +27,13 @@ class ActivityService
             ],
             [
                 "start_time" => Carbon::parse($data["started_at"]),
-                "end_time" => $data['stopped_at'] ? Carbon::parse($data['stopped_at']) : null
+                "end_time" => $data['stopped_at'] ? Carbon::parse($data['stopped_at']) : null,
+                "distance" => $data['distance'],
+                "duration" => $data['duration'],
+                "average_speed" => $data['average_speed'],
+                "average_pace" => $data['average_pace'],
+                "elevation_gain" => $data['elevation_gain'],
+                "max_speed" => $data['max_speed']
             ]);
 
         return [

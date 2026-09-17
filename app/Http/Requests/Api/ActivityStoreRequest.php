@@ -22,10 +22,17 @@ class ActivityStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            "started_at" => "required|date",
-            "client_id" => "required|uuid",
-            "stopped_at" => "required|date"
-        ];
+      return [
+    "started_at"     => "required|date",
+    "client_id"      => "required|uuid",
+    "stopped_at"     => "required|date",
+    "distance"       => "required|numeric",
+    "duration"       => "required|numeric",
+    "average_speed"  => "required|numeric",
+    "average_pace"   => "required|numeric",
+    "elevation_gain" => "required|numeric",
+    "max_speed"      => "required|numeric",
+    "map_image_url"  => "nullable",
+];   
     }
 }
