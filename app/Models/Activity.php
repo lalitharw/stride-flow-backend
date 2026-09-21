@@ -43,5 +43,13 @@ class Activity extends Model
     public function scopeActivityCount($query){
         return $query->where("status","completed")->count();
     }
+
+    public function scopeActivityCompletedToday($query){
+        return $query->where("status","completed")->where("created_at",">=",Carbon::today()->startOfDay());
+    }
+
+    public function scopeActivityActiveToday($query){
+        return $query->where("status","active")->where("created_at",">=",Carbon::today()->startOfDay());
+    }
     
 }
