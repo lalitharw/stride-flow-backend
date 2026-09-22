@@ -37,5 +37,11 @@ class Activity extends Model
             get: fn() =>  $this->end_time ? Carbon::parse($this->end_time)->format('d-m-Y H:i') : null
         );
     }
+
+
+    //local scope
+    public function scopeActivityCount($query){
+        return $query->where("status","completed")->count();
+    }
     
 }

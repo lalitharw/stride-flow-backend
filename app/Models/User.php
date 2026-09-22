@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -53,4 +54,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Activity::class, "user_id");
     }
+
+
+    // local scopes
+
+    public function scopeToday($query){
+        return $query->where("created_at",">=",Carbon::today()->startOfDay());
+    }
+
+    
 }
