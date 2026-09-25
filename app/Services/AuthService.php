@@ -7,6 +7,7 @@ use App\Exceptions\Api\UserAlreadyExistsException;
 use App\Models\User;
 use App\Trait\Api\ResponseTrait;
 use Illuminate\Support\Facades\Hash;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 
 
 class AuthService
@@ -60,6 +61,31 @@ class AuthService
     {
         $this->checkUserEmailAndPassword($email, $password);
         $user = $this->getuser($email);
+        $token = $this->createUserToken($user);
+
+        return [
+            "user" => $user,
+            "token" => $token
+        ];
+    }
+
+
+    public function googleLogin(array $data){
+        $auth = Firebase::auth();
+        $verifiedToken = $auth->verifyIdToken($data['id_token']);
+        $firebaseUid = $verifiedIdToken->claims()->get('sub');
+        $email = $verifiedIdToken->claims()->get('email');
+        $name = $verifiedIdToken->claims()->get('name');
+
+        $user = User::updateOrCreate([
+            "email" => $email
+        ],
+        [
+            "name" => $name,
+            "firebase_uid" => $firebaseUid
+        ]
+        );
+
         $token = $this->createUserToken($user);
 
         return [
