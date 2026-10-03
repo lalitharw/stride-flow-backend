@@ -71,8 +71,9 @@ class AuthService
 
 
     public function googleLogin(array $data){
+        \Log::info($data);
         $auth = Firebase::auth();
-        $verifiedToken = $auth->verifyIdToken($data['id_token']);
+        $verifiedIdToken = $auth->verifyIdToken($data['id_token']);
         $firebaseUid = $verifiedIdToken->claims()->get('sub');
         $email = $verifiedIdToken->claims()->get('email');
         $name = $verifiedIdToken->claims()->get('name');
@@ -82,7 +83,7 @@ class AuthService
         ],
         [
             "name" => $name,
-            "firebase_uid" => $firebaseUid
+            "id_token" => $firebaseUid
         ]
         );
 
