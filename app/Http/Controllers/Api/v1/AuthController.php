@@ -9,6 +9,8 @@ use App\Http\Requests\Api\UserGoogleLoginRequest;
 use App\Services\AuthService;
 use App\Trait\Api\ResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -60,5 +62,56 @@ class AuthController extends Controller
             data: $result,
             message:"User Email Checked"
         );
+    }
+
+      public function forgotPassword(Request $request){
+        $request->validate([
+            "email" => "required|email"
+        ]);
+
+        $user = User::where("email",$request->email)->first();
+
+       
+
+        $status = Password::sendResetLink(
+            $request->only("email")
+        );
+
+        \Log::info($status);
+
+        if($status === Password::RESET_LINK_SENT){
+            $this->successResponse(
+                message: "Password reset link sent to your email"
+            );
+        }
+
+         throw new \Exception("Unable to send password reset link.");
+    
+    }
+
+    public function resetPassword(Request $request){
+        $request->validate([
+            "token" => "required",
+            "email" => "required|email|string",
+            "password" => "required|min:8,confirmed"
+        ]);
+
+        $status = Password::reset(
+            $request->only("email","password","password_confirmation","token"),
+            function($user,$password){
+                $user->forceFill([
+                    "password" => Hash::make($password),
+                    "remember_token" => Str::random(60)
+                ])->save();
+            }
+        );
+
+        if($status === Password::PASSWORD_RESET){
+            return $this->successResponse(
+                message: "Password has been reset successfully"
+            );
+        }
+
+        throw new \Exception("Invalid or Expired reset token.");
     }
 }

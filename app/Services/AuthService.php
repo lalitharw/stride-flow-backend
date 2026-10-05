@@ -111,6 +111,7 @@ class AuthService
                 "provider" => "google"
             ]);
         }
+        
 
 
         $token = $this->createUserToken($user);
@@ -119,5 +120,12 @@ class AuthService
             "user" => $user,
             "token" => $token
         ];
+    }
+
+    public function forgetPassword($email){
+        $user = User::where("email",$email)->first();
+        if($user && $user->provider === "email"){
+            
+        }
     }
 }

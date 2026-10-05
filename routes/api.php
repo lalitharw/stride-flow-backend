@@ -27,7 +27,13 @@ Route::prefix("v1")->group(function () {
         Route::post("login", "login");
         Route::post("login/google", "googleLogin");
         Route::post("check-email", "checkEmail");
+        Route::post("forgot-password","forgotPassword");
+        Route::post("reset-password","resetPassword");
     });
+
+    
+
+    
 
     // protected route
     Route::middleware(['auth:sanctum'])->group(function () {
