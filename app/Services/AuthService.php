@@ -26,7 +26,7 @@ class AuthService
         $user = User::where("email", $email)->first();
 
         if (!$user || !Hash::check($password, $user->password)) {
-            throw new ApiException("Email Or Password Incorrect");
+            throw new ApiException("Password Incorrect");
         }
     }
 
@@ -51,6 +51,15 @@ class AuthService
         ];
     }
 
+    public function checkEmail($email){
+        $user = User::where("email",$email)->first();
+
+        
+        return [
+           "exists" => ($user && $user->provider === "email") ? true : false 
+        ];
+    }
+
     private function createUserToken(User $user)
     {
         $token = $user->createToken(time())->plainTextToken;
@@ -59,6 +68,12 @@ class AuthService
 
     public function login(string $email, string $password)
     {
+        $user = User::where('email', $email)->first();
+        if($user){
+            if($user->provider !== "email"){
+                throw new \Exception("Account not found. Please sign in with Google.");
+            }
+        }
         $this->checkUserEmailAndPassword($email, $password);
         $user = $this->getuser($email);
         $token = $this->createUserToken($user);
@@ -71,21 +86,32 @@ class AuthService
 
 
     public function googleLogin(array $data){
-        \Log::info($data);
         $auth = Firebase::auth();
         $verifiedIdToken = $auth->verifyIdToken($data['id_token']);
         $firebaseUid = $verifiedIdToken->claims()->get('sub');
         $email = $verifiedIdToken->claims()->get('email');
         $name = $verifiedIdToken->claims()->get('name');
+        $user = User::where('email', $email)->first();
 
-        $user = User::updateOrCreate([
-            "email" => $email
-        ],
-        [
-            "name" => $name,
-            "id_token" => $firebaseUid
-        ]
-        );
+
+        if($user){
+            if($user->provider !== "google"){
+                throw new \Exception("Account not found. Please sign in with email and password.");
+            }
+            $user->update([
+                "firebase_uid" => $firebaseUid
+            ]);
+        }
+
+        else{
+            $user = User::create([
+                "email" => $email,
+                "name" => $name,
+                "firebase_uid" => $firebaseUid,
+                "provider" => "google"
+            ]);
+        }
+
 
         $token = $this->createUserToken($user);
 

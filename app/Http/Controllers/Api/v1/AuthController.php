@@ -49,4 +49,16 @@ class AuthController extends Controller
             message: "User Google Logged In Successfully"
         );
     }
+
+    public function checkEmail(Request $request){
+        $request->validate([
+            "email" => "required|email|string"
+        ]);
+
+        $result = $this->authService->checkEmail($request->email);
+        return $this->successResponse(
+            data: $result,
+            message:"User Email Checked"
+        );
+    }
 }

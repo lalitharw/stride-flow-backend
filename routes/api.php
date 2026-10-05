@@ -26,6 +26,7 @@ Route::prefix("v1")->group(function () {
         Route::post("register", "register");
         Route::post("login", "login");
         Route::post("login/google", "googleLogin");
+        Route::post("check-email", "checkEmail");
     });
 
     // protected route
