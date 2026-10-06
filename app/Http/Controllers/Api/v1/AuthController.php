@@ -36,6 +36,7 @@ class AuthController extends Controller
     public function login(UserLoginRequest $request)
     {
         $data = $request->validated();
+        \Log::info($data);
         $result = $this->authService->login($data['email'], $data['password']);
         return $this->successResponse(
             data: $result,
@@ -79,13 +80,13 @@ class AuthController extends Controller
 
         \Log::info($status);
 
-        if($status === Password::RESET_LINK_SENT){
-            $this->successResponse(
-                message: "Password reset link sent to your email"
+        if($status === Password::RESET_LINK_SENT || $status === 'passwords.user'){
+            return $this->successResponse(
+                message: "If an account exists with this email, a password reset link has been sent."
             );
         }
 
-         throw new \Exception("Unable to send password reset link.");
+         throw new \Exception("Unable to process the password reset request.");
     
     }
 

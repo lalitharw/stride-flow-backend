@@ -26,7 +26,7 @@ class AuthService
         $user = User::where("email", $email)->first();
 
         if (!$user || !Hash::check($password, $user->password)) {
-            throw new ApiException("Password Incorrect");
+            throw new \Exception("Email Or Password Incorrect.");
         }
     }
 
@@ -122,10 +122,5 @@ class AuthService
         ];
     }
 
-    public function forgetPassword($email){
-        $user = User::where("email",$email)->first();
-        if($user && $user->provider === "email"){
-            
-        }
-    }
+   
 }
