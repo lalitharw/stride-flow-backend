@@ -11,6 +11,10 @@ use App\Trait\Api\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use App\Mail\GoogleLoginMail;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -33,15 +37,29 @@ class AuthController extends Controller
         );
     }
 
-    public function login(UserLoginRequest $request)
+    public function login(Request $request)
     {
-        $data = $request->validated();
-        \Log::info($data);
-        $result = $this->authService->login($data['email'], $data['password']);
+        $request->validate([
+            "email" => "required|string|email"
+        ]);
+
+        $result = $this->authService->createUserAccount($request->email);
+
+        
         return $this->successResponse(
             data: $result,
             message: "User Logged In Successfully"
         );
+    }
+
+    public function setPassword(Request $request){
+        $request->validate([
+            "password" => "required|string"
+        ]);
+
+        $result = $this->authService->setPassword($request->password);
+
+        return $this->successResponse(message:"Password Set Successfully");
     }
 
     public function googleLogin(UserGoogleLoginRequest $request){
@@ -72,6 +90,15 @@ class AuthController extends Controller
 
         $user = User::where("email",$request->email)->first();
 
+        if($user->firebase_uid && !$user->password){
+                Mail::to($user->email)->send(new GoogleLoginMail($user->email));
+                 return $this->successResponse(
+                message: "If an account exists with this email, a password reset link has been sent3333."
+            );
+        }
+
+        
+
        
 
         $status = Password::sendResetLink(
@@ -90,15 +117,18 @@ class AuthController extends Controller
     
     }
 
+
+
     public function resetPassword(Request $request){
         $request->validate([
             "token" => "required",
             "email" => "required|email|string",
-            "password" => "required|min:8,confirmed"
+            "password" => "required|min:8"
         ]);
 
+
         $status = Password::reset(
-            $request->only("email","password","password_confirmation","token"),
+            $request->only("email","password","token"),
             function($user,$password){
                 $user->forceFill([
                     "password" => Hash::make($password),

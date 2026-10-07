@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         ResetPassword::createUrlUsing(function($user, string $token){
-            return "strideflow://reset-password?token="
+            return "strideflow://resetPassword?token="
             . urlencode($token)
             . '&email='
             . urlencode($user->email);

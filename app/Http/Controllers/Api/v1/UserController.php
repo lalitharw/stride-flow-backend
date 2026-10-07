@@ -24,11 +24,19 @@ class UserController extends Controller
         return $this->successResponse($result);
     }
 
+
     public function update(UpdateProfileRequest $request){
         
         $data = $request->validated();
-        \Log::info($data);
         $result = $this->userService->update($data);
         return $this->successResponse($result);
+    }
+
+    public function setPassword(Request $request){
+        $request->validate([
+            "password" => "required|string"
+        ]);
+        $this->userService->setPassword($request->password);
+        return $this->successResponse(message: "Password Set Successfully!");
     }
 }

@@ -35,19 +35,40 @@ class AuthService
         return User::where("email", $email)->first();
     }
 
+    public function setPassword(string $password){
+        auth()->user()->update([
+            "password" => Hash::make($password)
+        ]);
+    }
 
-    public function createUserAccount(string $email, string $password,string $name)
+
+    public function createUserAccount(string $email)
     {
-        $this->userExistsByEmail($email);
-        $user = new User();
-        $user->email = $email;
-        $user->password = Hash::make($password);
-        $user->name = $name;
-        $user->save();
+        // $this->userExistsByEmail($email);
+        // $user = new User();
+        // $user->email = $email;
+        // $user->password = Hash::make($password);
+        // $user->name = $name;
+        // $user->save();
+        // $token = $this->createUserToken($user);
+        // return [
+        //     "user" => $user,
+        //     "token" => $token
+        // ];
+        $type = "old";
+        $user = User::where("email",$email)->first();
+        if(!$user){
+            $user = new User();
+            $user->email = $email;
+            $user->save();
+            $type = "new";
+        }
+        
         $token = $this->createUserToken($user);
         return [
             "user" => $user,
-            "token" => $token
+            "token" => $token,
+            "type" => $type
         ];
     }
 

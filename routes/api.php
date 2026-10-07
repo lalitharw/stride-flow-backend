@@ -40,6 +40,7 @@ Route::prefix("v1")->group(function () {
         Route::prefix("users")->controller(UserController::class)->group(function () {
             Route::get("/", "get");
             Route::post("/","update");
+            Route::post("set-password","setPassword");
         });
 
         Route::prefix("activities")->controller(ActivityController::class)->group(function () {
