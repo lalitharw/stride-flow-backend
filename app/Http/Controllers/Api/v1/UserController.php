@@ -32,11 +32,14 @@ class UserController extends Controller
         return $this->successResponse($result);
     }
 
-    public function setPassword(Request $request){
+    public function setName(Request $request){
         $request->validate([
-            "password" => "required|string"
+            "name" => "required"
         ]);
-        $this->userService->setPassword($request->password);
-        return $this->successResponse(message: "Password Set Successfully!");
+
+        \Log::info($request->all());
+
+        $result = $this->userService->setName($request->name);
+        return $this->successResponse(data: $result, message:"Name Set Successfully!");
     }
 }

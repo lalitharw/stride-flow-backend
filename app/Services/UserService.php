@@ -30,9 +30,13 @@ class UserService
         ];
     }
 
-    public function setPassword(string $password){
+    public function setName(string $name){
         Auth::user()->update([
-            "password" => Hash::make($password)
+            "name" => $name
         ]);
+
+        return [
+            "user" => Auth::user()
+        ];
     }
 }

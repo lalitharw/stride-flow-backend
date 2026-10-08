@@ -40,10 +40,12 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            "email" => "required|string|email"
+            "email" => "required|string|email",
+            "password" => "required|string"
         ]);
 
-        $result = $this->authService->createUserAccount($request->email);
+
+        $result = $this->authService->login($request->email,$request->password);
 
         
         return $this->successResponse(

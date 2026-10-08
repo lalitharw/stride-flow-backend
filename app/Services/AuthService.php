@@ -42,7 +42,7 @@ class AuthService
     }
 
 
-    public function createUserAccount(string $email)
+    public function createUserAccount(string $email, string $password)
     {
         // $this->userExistsByEmail($email);
         // $user = new User();
@@ -60,8 +60,13 @@ class AuthService
         if(!$user){
             $user = new User();
             $user->email = $email;
+            
             $user->save();
             $type = "new";
+        }
+
+        else{
+
         }
         
         $token = $this->createUserToken($user);
@@ -74,10 +79,10 @@ class AuthService
 
     public function checkEmail($email){
         $user = User::where("email",$email)->first();
-
-        
         return [
-           "exists" => ($user && $user->provider === "email") ? true : false 
+           "exists" => isset($user) ? true : false,
+           "has_password" => isset($user->password) ? true: false,
+           "has_google" => isset($user->firebase_uid) ? true: false 
         ];
     }
 
@@ -87,21 +92,49 @@ class AuthService
         return $token;
     }
 
-    public function login(string $email, string $password)
-    {
-        $user = User::where('email', $email)->first();
-        if($user){
-            if($user->provider !== "email"){
-                throw new \Exception("Account not found. Please sign in with Google.");
-            }
-        }
-        $this->checkUserEmailAndPassword($email, $password);
-        $user = $this->getuser($email);
-        $token = $this->createUserToken($user);
+    // public function login(string $email, string $password)
+    // {
+    //     $user = User::where('email', $email)->first();
+    //     if($user){
+    //         if($user->provider !== "email"){
+    //             throw new \Exception("Account not found. Please sign in with Google.");
+    //         }
+    //     }
+    //     $this->checkUserEmailAndPassword($email, $password);
+    //     $user = $this->getuser($email);
+    //     $token = $this->createUserToken($user);
 
+    //     return [
+    //         "user" => $user,
+    //         "token" => $token
+    //     ];
+    // }
+
+    
+
+    public function login(string $email, string $password){
+        $user = User::where("email",$email)->first();
+        if(!$user){
+            $user = new User();
+            $user->email = $email;
+            $user->password = Hash::make($password);
+            $user->save();
+
+            $token = $this->createUserToken($user);
+            return [
+                "token" => $token,
+                "user" => $user     
+            ];
+        }
+
+        if(!Hash::check($password,$user->password)){
+            throw new \Exception("Invalid Credentials.");
+        }
+        
+        $token = $this->createUserToken($user);
         return [
-            "user" => $user,
-            "token" => $token
+            "token" => $token,
+            "user" => $user
         ];
     }
 
