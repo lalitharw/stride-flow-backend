@@ -149,9 +149,6 @@ class AuthService
 
 
         if($user){
-            if($user->provider !== "google"){
-                throw new \Exception("Account not found. Please sign in with email and password.");
-            }
             $user->update([
                 "firebase_uid" => $firebaseUid
             ]);
