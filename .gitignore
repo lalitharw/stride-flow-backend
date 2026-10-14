@@ -1,6 +1,8 @@
 
 .env
 
+service-account.json
+
 /node_modules
 
 /vendor
